@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { 
-  Camera, 
+  Video, 
   Upload, 
   Book as BookIcon, 
   Trash2, 
@@ -20,7 +20,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { analyzeImages, getBookDetails, Book } from './services/geminiService';
+import { analyzeImages, analyzeVideo, getBookDetails, Book } from './services/geminiService';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Markdown from 'react-markdown';
@@ -30,13 +30,12 @@ const CATEGORIES = ["Fiction", "Non-fiction", "Science", "Technology", "Self-hel
 export default function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [bookDetails, setBookDetails] = useState<string | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const fetchBookDetails = async (book: Book) => {
     setSelectedBook(book);
@@ -53,39 +52,54 @@ export default function App() {
     }
   };
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setShowCamera(true);
-      }
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      alert("Could not access camera. Please check permissions.");
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsAnalyzing(true);
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Video = reader.result as string;
+        try {
+          const detectedBooks = await analyzeVideo(base64Video, file.type);
+          updateBookList(detectedBooks);
+        } catch (err) {
+          console.error("Error analyzing video:", err);
+          alert("Error analyzing video. Please try a shorter or smaller video file.");
+        } finally {
+          setIsAnalyzing(false);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      setShowCamera(false);
-    }
-  };
+  const updateBookList = (newBooks: Book[]) => {
+    setBooks(prev => {
+      const cleanedNewBooks = newBooks.map(book => {
+        let cleanedAuthor = book.author;
+        if (cleanedAuthor) {
+          // Remove commas
+          cleanedAuthor = cleanedAuthor.replace(/,/g, '');
+          // Handle "Unknown"
+          if (cleanedAuthor.toLowerCase() === 'unknown' || cleanedAuthor.trim() === '') {
+            cleanedAuthor = undefined;
+          }
+        }
+        return { ...book, author: cleanedAuthor };
+      });
 
-  const capturePhoto = () => {
-    if (videoRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(videoRef.current, 0, 0);
-        const dataUrl = canvas.toDataURL('image/jpeg');
-        setCapturedImages(prev => [...prev, dataUrl]);
-      }
-    }
+      const combined = [...prev, ...cleanedNewBooks];
+      const normalize = (t: string) => t.toLowerCase().replace(/[^\w\s]/gi, '').trim();
+      const uniqueMap = new Map<string, Book>();
+      combined.forEach(book => {
+        const key = normalize(book.title);
+        const existing = uniqueMap.get(key);
+        if (!existing || book.title.length > existing.title.length) {
+          uniqueMap.set(key, book);
+        }
+      });
+      return Array.from(uniqueMap.values());
+    });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,31 +126,8 @@ export default function App() {
     setIsAnalyzing(true);
     try {
       const detectedBooks = await analyzeImages(capturedImages);
-      
-      // Merge and remove duplicates with more robust normalization
-      setBooks(prev => {
-        const combined = [...prev, ...detectedBooks];
-        
-        // Helper to normalize title for comparison
-        const normalize = (t: string) => t.toLowerCase().replace(/[^\w\s]/gi, '').trim();
-
-        // Group by normalized title and pick the one with the longest original title
-        const uniqueMap = new Map<string, Book>();
-        
-        combined.forEach(book => {
-          const key = normalize(book.title);
-          const existing = uniqueMap.get(key);
-          if (!existing || book.title.length > existing.title.length) {
-            uniqueMap.set(key, book);
-          }
-        });
-
-        return Array.from(uniqueMap.values());
-      });
-      
+      updateBookList(detectedBooks);
       setCapturedImages([]);
-      setShowCamera(false);
-      stopCamera();
     } catch (err) {
       console.error("Error processing images:", err);
     } finally {
@@ -173,7 +164,7 @@ export default function App() {
         autoTable(doc, {
           startY: currentY,
           head: [['#', 'Title', 'Author']],
-          body: categoryBooks.map((b, i) => [i + 1, b.title, b.author || 'Unknown']),
+          body: categoryBooks.map((b, i) => [i + 1, b.title, b.author || '']),
           theme: 'striped',
           headStyles: { fillColor: [40, 60, 120] },
           margin: { top: 10 },
@@ -227,17 +218,19 @@ export default function App() {
         {/* Main Actions */}
         <div className="grid grid-cols-2 gap-4 mb-12">
           <button
-            onClick={startCamera}
-            className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group"
+            onClick={() => videoInputRef.current?.click()}
+            disabled={isAnalyzing}
+            className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group disabled:opacity-50"
           >
             <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
-              <Camera size={24} />
+              <Video size={24} />
             </div>
-            <span className="font-medium">Scan Books</span>
+            <span className="font-medium">Upload scanning video</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all group"
+            disabled={isAnalyzing}
+            className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all group disabled:opacity-50"
           >
             <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors">
               <Upload size={24} />
@@ -252,47 +245,33 @@ export default function App() {
             accept="image/*" 
             className="hidden" 
           />
+          <input 
+            type="file" 
+            ref={videoInputRef} 
+            onChange={handleVideoUpload} 
+            accept="video/*" 
+            className="hidden" 
+          />
         </div>
 
-        {/* Camera Overlay */}
+        {/* Analysis Loading State */}
         <AnimatePresence>
-          {showCamera && (
+          {isAnalyzing && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black flex flex-col"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-blue-600/10 border border-blue-500/30 rounded-3xl p-8 mb-12 flex flex-col items-center justify-center gap-4 text-center"
             >
-              <div className="relative flex-1 bg-black overflow-hidden">
-                <video 
-                  ref={videoRef} 
-                  autoPlay 
-                  playsInline 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 border-[40px] border-black/40 pointer-events-none">
-                  <div className="w-full h-full border border-blue-500/30 rounded-lg" />
-                </div>
+              <div className="relative">
+                <Loader2 className="animate-spin text-blue-500" size={48} />
+                <div className="absolute inset-0 blur-xl bg-blue-500/20 animate-pulse" />
               </div>
-              
-              <div className="p-8 bg-[#0a0e1a] flex items-center justify-between">
-                <button 
-                  onClick={() => { stopCamera(); setShowCamera(false); }}
-                  className="p-4 rounded-full bg-slate-800 text-slate-400"
-                >
-                  <X size={24} />
-                </button>
-                <button 
-                  onClick={capturePhoto}
-                  className="w-20 h-20 rounded-full border-4 border-white/20 p-1"
-                >
-                  <div className="w-full h-full rounded-full bg-white shadow-lg shadow-white/20 active:scale-95 transition-transform" />
-                </button>
-                <div className="w-14 h-14 rounded-lg bg-slate-800 overflow-hidden border border-slate-700">
-                  {capturedImages.length > 0 && (
-                    <img src={capturedImages[capturedImages.length - 1]} className="w-full h-full object-cover" />
-                  )}
-                </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">AI is analyzing your content</h3>
+                <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                  We're extracting book titles, authors, and categories. This may take a moment depending on the file size.
+                </p>
               </div>
             </motion.div>
           )}

@@ -15,6 +15,11 @@ export const analyzeImages = async (base64Images: string[]): Promise<Book[]> => 
   IMPORTANT: If the same book appears in multiple images, only include it ONCE in the final list.
   Ensure titles are complete and accurate as they appear on the cover or spine.
   Categorize each book into one of these categories: Fiction, Non-fiction, Science, Technology, Self-help, Academic, or Others.
+  
+  AUTHOR RULES:
+  1. If the author is unknown, leave the 'author' field empty or omit it.
+  2. DO NOT use commas (",") in the author's name.
+  
   Return a SINGLE JSON array of unique objects with 'title', 'author', and 'category' fields.`;
 
   const contents = {
@@ -57,6 +62,64 @@ export const analyzeImages = async (base64Images: string[]): Promise<Book[]> => 
     return JSON.parse(text);
   } catch (error) {
     console.error("Error analyzing images:", error);
+    return [];
+  }
+};
+
+export const analyzeVideo = async (base64Video: string, mimeType: string): Promise<Book[]> => {
+  const model = "gemini-3-flash-preview";
+  
+  const prompt = `Analyze this video of books. Extract the FULL title (including any subtitles) and author for each book you see throughout the video. 
+  IMPORTANT: If the same book appears multiple times in the video, only include it ONCE in the final list.
+  Ensure titles are complete and accurate as they appear on the cover or spine.
+  Categorize each book into one of these categories: Fiction, Non-fiction, Science, Technology, Self-help, Academic, or Others.
+  
+  AUTHOR RULES:
+  1. If the author is unknown, leave the 'author' field empty or omit it.
+  2. DO NOT use commas (",") in the author's name.
+  
+  Return a SINGLE JSON array of unique objects with 'title', 'author', and 'category' fields.`;
+
+  const contents = {
+    parts: [
+      { text: prompt },
+      {
+        inlineData: {
+          mimeType,
+          data: base64Video.split(',')[1] || base64Video
+        }
+      }
+    ]
+  };
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              author: { type: Type.STRING },
+              category: { 
+                type: Type.STRING,
+                enum: ["Fiction", "Non-fiction", "Science", "Technology", "Self-help", "Academic", "Others"]
+              }
+            },
+            required: ["title", "category"]
+          }
+        }
+      }
+    });
+
+    const text = response.text;
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Error analyzing video:", error);
     return [];
   }
 };
