@@ -1,0 +1,7 @@
+{
+  "name": "Book Tracker",
+  "description": "A futuristic book tracking app that uses AI to identify and categorize books from photos, generating organized PDF lists.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
