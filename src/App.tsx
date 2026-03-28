@@ -17,7 +17,10 @@ import {
   Download,
   Library,
   Info,
-  ExternalLink
+  ExternalLink,
+  Search,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { analyzeImages, analyzeVideo, getBookDetails, Book } from './services/geminiService';
@@ -34,8 +37,19 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [bookDetails, setBookDetails] = useState<string | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (book.author && book.author.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const fetchBookDetails = async (book: Book) => {
     setSelectedBook(book);
@@ -74,32 +88,29 @@ export default function App() {
   };
 
   const updateBookList = (newBooks: Book[]) => {
-    setBooks(prev => {
-      const cleanedNewBooks = newBooks.map(book => {
-        let cleanedAuthor = book.author;
-        if (cleanedAuthor) {
-          // Remove commas
-          cleanedAuthor = cleanedAuthor.replace(/,/g, '');
-          // Handle "Unknown"
-          if (cleanedAuthor.toLowerCase() === 'unknown' || cleanedAuthor.trim() === '') {
-            cleanedAuthor = undefined;
-          }
+    const cleanedNewBooks = newBooks.map(book => {
+      let cleanedAuthor = book.author;
+      if (cleanedAuthor) {
+        // Remove commas
+        cleanedAuthor = cleanedAuthor.replace(/,/g, '');
+        // Handle "Unknown"
+        if (cleanedAuthor.toLowerCase() === 'unknown' || cleanedAuthor.trim() === '') {
+          cleanedAuthor = undefined;
         }
-        return { ...book, author: cleanedAuthor };
-      });
-
-      const combined = [...prev, ...cleanedNewBooks];
-      const normalize = (t: string) => t.toLowerCase().replace(/[^\w\s]/gi, '').trim();
-      const uniqueMap = new Map<string, Book>();
-      combined.forEach(book => {
-        const key = normalize(book.title);
-        const existing = uniqueMap.get(key);
-        if (!existing || book.title.length > existing.title.length) {
-          uniqueMap.set(key, book);
-        }
-      });
-      return Array.from(uniqueMap.values());
+      }
+      return { ...book, author: cleanedAuthor };
     });
+
+    const normalize = (t: string) => t.toLowerCase().replace(/[^\w\s]/gi, '').trim();
+    const uniqueMap = new Map<string, Book>();
+    cleanedNewBooks.forEach(book => {
+      const key = normalize(book.title);
+      const existing = uniqueMap.get(key);
+      if (!existing || book.title.length > existing.title.length) {
+        uniqueMap.set(key, book);
+      }
+    });
+    setBooks(Array.from(uniqueMap.values()));
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,11 +194,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] text-slate-200 font-sans selection:bg-blue-500/30">
+    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-blue-500/30 ${
+      theme === 'dark' ? 'bg-[#0a0e1a] text-slate-200' : 'bg-[#f8fafc] text-slate-800'
+    }`}>
       {/* Background Glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
+        <div className={`absolute -top-[10%] -left-[10%] w-[40%] h-[40%] blur-[120px] rounded-full transition-all duration-1000 ${
+          theme === 'dark' ? 'bg-blue-600/10' : 'bg-blue-400/20'
+        }`} />
+        <div className={`absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] blur-[120px] rounded-full transition-all duration-1000 ${
+          theme === 'dark' ? 'bg-indigo-600/10' : 'bg-indigo-400/20'
+        }`} />
       </div>
 
       <div className="relative max-w-2xl mx-auto px-4 py-8">
@@ -198,31 +215,53 @@ export default function App() {
               <span className="text-2xl font-black tracking-tighter text-white">BT</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white leading-none">Book Tracker</h1>
-              <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-semibold">Futuristic Inventory</p>
+              <h1 className={`text-2xl font-bold tracking-tight leading-none ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Book Tracker</h1>
+              <p className={`text-xs mt-1 uppercase tracking-widest font-semibold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Futuristic Inventory</p>
             </div>
           </div>
-          {books.length > 0 && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              onClick={generatePDF}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 rounded-full text-blue-400 transition-all text-sm font-medium"
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-full transition-all ${
+                theme === 'dark' 
+                  ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' 
+                  : 'bg-white text-slate-600 hover:bg-slate-100 shadow-sm border border-slate-200'
+              }`}
             >
-              <Download size={16} />
-              Export PDF
-            </motion.button>
-          )}
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            {books.length > 0 && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={generatePDF}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                  theme === 'dark'
+                    ? 'bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 text-blue-400'
+                    : 'bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-600'
+                }`}
+              >
+                <Download size={16} />
+                Export PDF
+              </motion.button>
+            )}
+          </div>
         </header>
 
         {/* Main Actions */}
-        <div className="grid grid-cols-2 gap-4 mb-12">
+        <div className="grid grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => videoInputRef.current?.click()}
             disabled={isAnalyzing}
-            className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group disabled:opacity-50"
+            className={`flex flex-col items-center justify-center p-6 border rounded-2xl transition-all group disabled:opacity-50 ${
+              theme === 'dark'
+                ? 'bg-slate-900/50 border-slate-800 hover:border-blue-500/50 hover:bg-blue-500/5'
+                : 'bg-white border-slate-200 hover:border-blue-500/50 hover:bg-blue-50/50 shadow-sm'
+            }`}
           >
-            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
+              theme === 'dark' ? 'bg-slate-800 group-hover:bg-blue-500/20 group-hover:text-blue-400' : 'bg-slate-100 group-hover:bg-blue-100 group-hover:text-blue-600'
+            }`}>
               <Video size={24} />
             </div>
             <span className="font-medium">Upload scanning video</span>
@@ -230,9 +269,15 @@ export default function App() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isAnalyzing}
-            className="flex flex-col items-center justify-center p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all group disabled:opacity-50"
+            className={`flex flex-col items-center justify-center p-6 border rounded-2xl transition-all group disabled:opacity-50 ${
+              theme === 'dark'
+                ? 'bg-slate-900/50 border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-500/5'
+                : 'bg-white border-slate-200 hover:border-indigo-500/50 hover:bg-indigo-50/50 shadow-sm'
+            }`}
           >
-            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-colors">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
+              theme === 'dark' ? 'bg-slate-800 group-hover:bg-indigo-500/20 group-hover:text-indigo-400' : 'bg-slate-100 group-hover:bg-indigo-100 group-hover:text-indigo-600'
+            }`}>
               <Upload size={24} />
             </div>
             <span className="font-medium">Upload Photos</span>
@@ -251,6 +296,24 @@ export default function App() {
             onChange={handleVideoUpload} 
             accept="video/*" 
             className="hidden" 
+          />
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative mb-12">
+          <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+            <Search size={20} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by book title or author..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`w-full pl-12 pr-4 py-4 rounded-2xl border transition-all focus:ring-2 focus:ring-blue-500/20 outline-none ${
+              theme === 'dark'
+                ? 'bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-600'
+                : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 shadow-sm'
+            }`}
           />
         </div>
 
@@ -336,38 +399,46 @@ export default function App() {
         {/* Book List */}
         <div className="space-y-12">
           {CATEGORIES.map(category => {
-            const categoryBooks = books.filter(b => b.category === category);
+            const categoryBooks = filteredBooks.filter(b => b.category === category);
             if (categoryBooks.length === 0) return null;
 
             return (
               <section key={category} className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400/80">{category}</h2>
-                  <div className="flex-1 h-px bg-slate-800" />
-                  <span className="text-xs font-mono text-slate-500">{categoryBooks.length}</span>
+                  <h2 className={`text-sm font-black uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-blue-400/80' : 'text-blue-600'}`}>{category}</h2>
+                  <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`} />
+                  <span className={`text-xs font-mono ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{categoryBooks.length}</span>
                 </div>
                 
                 <div className="grid gap-3">
-                  {categoryBooks.map((book, i) => (
+                  {categoryBooks.map((book) => (
                     <motion.div
                       layout
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       key={book.title}
                       onClick={() => fetchBookDetails(book)}
-                      className="group flex items-center justify-between p-4 bg-slate-900/40 border border-slate-800/50 rounded-2xl hover:bg-slate-800/40 hover:border-blue-500/30 transition-all cursor-pointer"
+                      className={`group flex items-center justify-between p-4 border rounded-2xl transition-all cursor-pointer ${
+                        theme === 'dark'
+                          ? 'bg-slate-900/40 border-slate-800/50 hover:bg-slate-800/40 hover:border-blue-500/30'
+                          : 'bg-white border-slate-200 hover:bg-blue-50/30 hover:border-blue-300 shadow-sm'
+                      }`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500/20 transition-colors">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                          theme === 'dark' ? 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20' : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'
+                        }`}>
                           <BookIcon size={18} />
                         </div>
                         <div>
-                          <h4 className="font-bold text-slate-100 leading-tight group-hover:text-blue-400 transition-colors">{book.title}</h4>
-                          {book.author && <p className="text-sm text-slate-500">{book.author}</p>}
+                          <h4 className={`font-bold leading-tight transition-colors ${
+                            theme === 'dark' ? 'text-slate-100 group-hover:text-blue-400' : 'text-slate-900 group-hover:text-blue-600'
+                          }`}>{book.title}</h4>
+                          {book.author && <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>{book.author}</p>}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Info size={16} className="text-slate-600 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-all" />
+                        <Info size={16} className={`opacity-0 group-hover:opacity-100 transition-all ${theme === 'dark' ? 'text-slate-600 group-hover:text-blue-400' : 'text-slate-400 group-hover:text-blue-600'}`} />
                         <button 
                           onClick={(e) => { e.stopPropagation(); deleteBook(books.indexOf(book)); }}
                           className="p-2 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
@@ -382,13 +453,19 @@ export default function App() {
             );
           })}
 
-          {books.length === 0 && !isAnalyzing && capturedImages.length === 0 && (
+          {filteredBooks.length === 0 && !isAnalyzing && capturedImages.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-6 border border-slate-800">
-                <Library size={32} className="text-slate-700" />
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border ${
+                theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <Library size={32} className={theme === 'dark' ? 'text-slate-700' : 'text-slate-300'} />
               </div>
-              <h3 className="text-xl font-bold text-slate-400">Your library is empty</h3>
-              <p className="text-slate-600 mt-2 max-w-xs">Scan book spines or covers to start organizing your collection.</p>
+              <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                {searchTerm ? "No books match your search" : "Your library is empty"}
+              </h3>
+              <p className={`mt-2 max-w-xs ${theme === 'dark' ? 'text-slate-600' : 'text-slate-400'}`}>
+                {searchTerm ? "Try adjusting your search terms or scan more books." : "Scan book spines or covers to start organizing your collection."}
+              </p>
             </div>
           )}
         </div>
@@ -407,21 +484,29 @@ export default function App() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-[#0d1221] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl"
+              className={`relative w-full max-w-lg border rounded-3xl overflow-hidden shadow-2xl ${
+                theme === 'dark' ? 'bg-[#0d1221] border-slate-800' : 'bg-white border-slate-200'
+              }`}
             >
-              <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+              <div className={`p-6 border-b flex items-center justify-between ${
+                theme === 'dark' ? 'border-slate-800 bg-slate-900/50' : 'border-slate-100 bg-slate-50/50'
+              }`}>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    theme === 'dark' ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'
+                  }`}>
                     <BookIcon size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-white leading-tight">{selectedBook.title}</h3>
-                    <p className="text-xs text-slate-400 uppercase tracking-widest">{selectedBook.category}</p>
+                    <h3 className={`font-bold leading-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{selectedBook.title}</h3>
+                    <p className={`text-xs uppercase tracking-widest ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{selectedBook.category}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedBook(null)}
-                  className="p-2 rounded-full hover:bg-slate-800 text-slate-400 transition-colors"
+                  className={`p-2 rounded-full transition-colors ${
+                    theme === 'dark' ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
+                  }`}
                 >
                   <X size={20} />
                 </button>
@@ -431,18 +516,20 @@ export default function App() {
                 {isLoadingDetails ? (
                   <div className="flex flex-col items-center justify-center py-12 gap-4">
                     <Loader2 className="animate-spin text-blue-500" size={32} />
-                    <p className="text-slate-400 font-medium animate-pulse">Searching Google for insights...</p>
+                    <p className={`font-medium animate-pulse ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Searching Google for insights...</p>
                   </div>
                 ) : (
-                  <div className="prose prose-invert prose-blue max-w-none">
-                    <div className="markdown-body text-slate-300 leading-relaxed">
+                  <div className={`prose max-w-none ${theme === 'dark' ? 'prose-invert prose-blue' : 'prose-slate'}`}>
+                    <div className={`markdown-body leading-relaxed ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
                       <Markdown>{bookDetails}</Markdown>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="p-6 border-t border-slate-800 bg-slate-900/30 flex justify-end">
+              <div className={`p-6 border-t bg-slate-900/30 flex justify-end ${
+                theme === 'dark' ? 'border-slate-800 bg-slate-900/30' : 'border-slate-100 bg-slate-50/30'
+              }`}>
                 <button 
                   onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(selectedBook.title + (selectedBook.author ? ' ' + selectedBook.author : ''))}`, '_blank')}
                   className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/20"
@@ -457,10 +544,16 @@ export default function App() {
       </AnimatePresence>
 
       {/* Footer Info */}
-      <footer className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <p className="text-xs text-slate-600 font-mono uppercase tracking-widest">
+      <footer className="max-w-2xl mx-auto px-4 py-12 text-center space-y-4">
+        <p className={`text-xs font-mono uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-slate-600' : 'text-slate-400'}`}>
           Powered by Gemini AI & BT Engine
         </p>
+        <div className="flex flex-col items-center gap-2">
+          <p className={`text-sm font-medium tracking-tight ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+            Developed by <span className="text-blue-500 font-bold">Kartik Kumar</span>
+          </p>
+          <div className={`h-px w-12 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`} />
+        </div>
       </footer>
     </div>
   );
