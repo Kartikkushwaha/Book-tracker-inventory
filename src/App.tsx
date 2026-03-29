@@ -240,7 +240,7 @@ export default function App() {
 
   return (
     <div className={`min-h-screen transition-colors duration-700 font-sans selection:bg-blue-500/30 relative overflow-hidden ${
-      theme === 'dark' ? 'bg-[#020617] text-slate-200' : 'bg-[#ffffff] text-slate-800'
+      theme === 'dark' ? 'bg-[#020617] text-slate-200' : 'bg-[#F8F9FA] text-slate-800'
     }`}>
       {/* Premium Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -253,7 +253,7 @@ export default function App() {
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className={`absolute -top-[10%] -left-[10%] w-[70%] h-[70%] blur-[160px] rounded-full transition-all duration-1000 ${
-            theme === 'dark' ? 'bg-blue-600/15' : 'bg-blue-400/10'
+            theme === 'dark' ? 'bg-blue-600/15' : 'bg-blue-500/10'
           }`} 
         />
         <motion.div 
@@ -264,16 +264,16 @@ export default function App() {
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           className={`absolute -bottom-[10%] -right-[10%] w-[70%] h-[70%] blur-[160px] rounded-full transition-all duration-1000 ${
-            theme === 'dark' ? 'bg-indigo-600/15' : 'bg-indigo-400/10'
+            theme === 'dark' ? 'bg-indigo-600/15' : 'bg-indigo-500/10'
           }`} 
         />
         
         {/* Pattern Overlay */}
-        <div className={`absolute inset-0 opacity-[0.05] ${theme === 'dark' ? 'invert' : ''}`} 
-             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className={`absolute inset-0 opacity-[0.03] ${theme === 'dark' ? 'invert' : ''}`} 
+             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
         
         {/* Noise Texture */}
-        <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+        <div className="absolute inset-0 opacity-[0.015] mix-blend-overlay pointer-events-none"
              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
       </div>
 
@@ -323,40 +323,40 @@ export default function App() {
           <button
             onClick={handleVideoClick}
             disabled={isAnalyzing}
-            className={`flex flex-col items-center justify-center p-6 border-2 rounded-3xl transition-all duration-300 group disabled:opacity-50 relative overflow-hidden ${
+            className={`flex flex-col items-center justify-center p-6 border transition-all duration-500 group disabled:opacity-50 relative overflow-hidden rounded-[2rem] ${
               theme === 'dark'
-                ? 'bg-slate-900/40 border-white hover:bg-white/10'
-                : 'bg-white/80 backdrop-blur-sm border-black hover:bg-black/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+                ? 'bg-slate-900/40 border-white/20 hover:bg-white/10'
+                : 'bg-white/80 backdrop-blur-md border-slate-200/60 hover:bg-white shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)] hover:-translate-y-1'
             }`}
           >
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
               theme === 'dark' 
                 ? 'bg-slate-800 group-hover:bg-white group-hover:text-black group-hover:scale-110' 
-                : 'bg-slate-100 group-hover:bg-black group-hover:text-white group-hover:scale-110'
+                : 'bg-slate-50 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 shadow-inner'
             }`}>
               <Video size={28} />
             </div>
             <span className="font-bold tracking-tight text-sm uppercase">Scanning Video</span>
-            <div className={`absolute bottom-0 left-0 h-1 bg-current transition-all duration-500 w-0 group-hover:w-full ${theme === 'dark' ? 'text-white' : 'text-black'}`} />
+            <div className={`absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-500 w-0 group-hover:w-full`} />
           </button>
           <button
             onClick={handlePhotoClick}
             disabled={isAnalyzing}
-            className={`flex flex-col items-center justify-center p-6 border-2 rounded-3xl transition-all duration-300 group disabled:opacity-50 relative overflow-hidden ${
+            className={`flex flex-col items-center justify-center p-6 border transition-all duration-500 group disabled:opacity-50 relative overflow-hidden rounded-[2rem] ${
               theme === 'dark'
-                ? 'bg-slate-900/40 border-white hover:bg-white/10'
-                : 'bg-white/80 backdrop-blur-sm border-black hover:bg-black/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+                ? 'bg-slate-900/40 border-white/20 hover:bg-white/10'
+                : 'bg-white/80 backdrop-blur-md border-slate-200/60 hover:bg-white shadow-[0_20px_50px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)] hover:-translate-y-1'
             }`}
           >
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
               theme === 'dark' 
                 ? 'bg-slate-800 group-hover:bg-white group-hover:text-black group-hover:scale-110' 
-                : 'bg-slate-100 group-hover:bg-black group-hover:text-white group-hover:scale-110'
+                : 'bg-slate-50 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-110 shadow-inner'
             }`}>
               <Upload size={28} />
             </div>
             <span className="font-bold tracking-tight text-sm uppercase">Upload Photos</span>
-            <div className={`absolute bottom-0 left-0 h-1 bg-current transition-all duration-500 w-0 group-hover:w-full ${theme === 'dark' ? 'text-white' : 'text-black'}`} />
+            <div className={`absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-500 w-0 group-hover:w-full`} />
           </button>
           <input 
             type="file" 
@@ -377,18 +377,18 @@ export default function App() {
 
         {/* Search Bar */}
         <div className="relative mb-12">
-          <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-            <Search size={20} />
+          <div className={`absolute left-6 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+            <Search size={22} />
           </div>
           <input
             type="text"
             placeholder="Search by book title or author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-12 pr-4 py-4 rounded-3xl border-2 transition-all focus:ring-2 focus:ring-blue-500/20 outline-none ${
+            className={`w-full pl-16 pr-8 py-6 rounded-[2.5rem] border transition-all focus:ring-4 focus:ring-blue-500/10 outline-none ${
               theme === 'dark'
-                ? 'bg-slate-900/50 border-white text-white placeholder:text-slate-600'
-                : 'bg-white border-black text-slate-900 placeholder:text-slate-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+                ? 'bg-slate-900/50 border-white/20 text-white placeholder:text-slate-600'
+                : 'bg-white/80 backdrop-blur-md border-slate-200/60 text-slate-900 placeholder:text-slate-400 shadow-[0_15px_40px_rgba(0,0,0,0.03)] focus:bg-white'
             }`}
           />
         </div>
@@ -494,32 +494,34 @@ export default function App() {
                       animate={{ opacity: 1, x: 0 }}
                       key={book.title}
                       onClick={() => fetchBookDetails(book)}
-                      className={`group flex items-center justify-between p-4 border rounded-2xl transition-all cursor-pointer ${
+                      className={`group flex items-center justify-between p-5 border transition-all cursor-pointer rounded-2xl ${
                         theme === 'dark'
                           ? 'bg-slate-900/40 border-slate-800/50 hover:bg-slate-800/40 hover:border-blue-500/30'
-                          : 'bg-white border-slate-200 hover:bg-blue-50/30 hover:border-blue-300 shadow-sm'
+                          : 'bg-white/60 backdrop-blur-sm border-slate-100/80 hover:bg-white hover:border-blue-200 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:-translate-y-0.5'
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                          theme === 'dark' ? 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20' : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                          theme === 'dark' ? 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20' : 'bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-200'
                         }`}>
-                          <BookIcon size={18} />
+                          <BookIcon size={20} />
                         </div>
                         <div>
-                          <h4 className={`font-bold leading-tight transition-colors ${
+                          <h4 className={`font-bold leading-tight transition-colors text-base ${
                             theme === 'dark' ? 'text-slate-100 group-hover:text-blue-400' : 'text-slate-900 group-hover:text-blue-600'
                           }`}>{book.title}</h4>
-                          {book.author && <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>{book.author}</p>}
+                          {book.author && <p className={`text-sm font-medium ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{book.author}</p>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Info size={16} className={`opacity-0 group-hover:opacity-100 transition-all ${theme === 'dark' ? 'text-slate-600 group-hover:text-blue-400' : 'text-slate-400 group-hover:text-blue-600'}`} />
+                      <div className="flex items-center gap-3">
+                        <Info size={18} className={`opacity-0 group-hover:opacity-100 transition-all ${theme === 'dark' ? 'text-slate-600 group-hover:text-blue-400' : 'text-slate-300 group-hover:text-blue-600'}`} />
                         <button 
                           onClick={(e) => { e.stopPropagation(); deleteBook(books.indexOf(book)); }}
-                          className="p-2 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          className={`p-2 rounded-lg transition-all opacity-0 group-hover:opacity-100 ${
+                            theme === 'dark' ? 'text-slate-600 hover:text-red-400 hover:bg-red-400/10' : 'text-slate-300 hover:text-red-500 hover:bg-red-50'
+                          }`}
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </motion.div>
@@ -530,16 +532,16 @@ export default function App() {
           })}
 
           {filteredBooks.length === 0 && !isAnalyzing && capturedImages.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border-2 ${
-                theme === 'dark' ? 'bg-slate-900 border-white' : 'bg-white border-black shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 border transition-all duration-500 ${
+                theme === 'dark' ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
               }`}>
-                <Library size={32} className={theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
+                <Library size={40} className={theme === 'dark' ? 'text-slate-400' : 'text-blue-600'} />
               </div>
-              <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+              <h3 className={`text-2xl font-bold tracking-tight ${theme === 'dark' ? 'text-slate-400' : 'text-slate-900'}`}>
                 {searchTerm ? "No books match your search" : "Your library is empty"}
               </h3>
-              <p className={`mt-2 max-w-xs ${theme === 'dark' ? 'text-slate-600' : 'text-slate-400'}`}>
+              <p className={`mt-3 max-w-xs leading-relaxed ${theme === 'dark' ? 'text-slate-600' : 'text-slate-500'}`}>
                 {searchTerm ? "Try adjusting your search terms or scan more books." : "Scan book spines or covers to start organizing your collection."}
               </p>
             </div>
@@ -556,54 +558,54 @@ export default function App() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className={`relative w-full max-w-md border-2 rounded-3xl overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center ${
-                theme === 'dark' ? 'bg-[#0d1221] border-white' : 'bg-white border-black'
-              }`}
-            >
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border-2 relative ${
-                theme === 'dark' ? 'bg-blue-500/20 border-white text-blue-400' : 'bg-blue-100 border-black text-blue-600'
-              }`}>
-                <Library size={32} />
-                <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black border-2 ${
-                  theme === 'dark' ? 'bg-blue-600 border-white text-white' : 'bg-black border-black text-white'
-                }`}>BT</div>
-              </div>
-              
-              <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>
-                Video Accuracy Warning
-              </h3>
-              
-              <p className={`mb-8 leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                Scanning video mode might decrease the accuracy, it is preferred to use upload photos.
-              </p>
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className={`relative w-full max-w-md border rounded-[2.5rem] overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center ${
+                  theme === 'dark' ? 'bg-[#0d1221] border-white/20' : 'bg-white border-slate-100'
+                }`}
+              >
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border relative ${
+                  theme === 'dark' ? 'bg-blue-500/20 border-white/30 text-blue-400' : 'bg-blue-50 border-blue-100 text-blue-600'
+                }`}>
+                  <Library size={32} />
+                  <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black border ${
+                    theme === 'dark' ? 'bg-blue-600 border-white/30 text-white' : 'bg-blue-600 border-blue-400 text-white'
+                  }`}>BT</div>
+                </div>
+                
+                <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                  Video Accuracy Warning
+                </h3>
+                
+                <p className={`mb-8 leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Scanning video mode might decrease the accuracy, it is preferred to use upload photos.
+                </p>
 
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={() => handleVideoWarningClose(false)}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all ${
-                    theme === 'dark' 
-                      ? 'bg-blue-600 text-white hover:bg-blue-500' 
-                      : 'bg-black text-white hover:bg-slate-800'
-                  }`}
-                >
-                  I got it
-                </button>
-                <button
-                  onClick={() => handleVideoWarningClose(true)}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all border-2 ${
-                    theme === 'dark' 
-                      ? 'border-slate-800 text-slate-400 hover:bg-slate-800' 
-                      : 'border-slate-200 text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  Don't show it again
-                </button>
-              </div>
-            </motion.div>
+                <div className="flex flex-col gap-3 w-full">
+                  <button
+                    onClick={() => handleVideoWarningClose(false)}
+                    className={`w-full py-4 rounded-2xl font-bold transition-all ${
+                      theme === 'dark' 
+                        ? 'bg-blue-600 text-white hover:bg-blue-500' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200'
+                    }`}
+                  >
+                    I got it
+                  </button>
+                  <button
+                    onClick={() => handleVideoWarningClose(true)}
+                    className={`w-full py-4 rounded-2xl font-bold transition-all border ${
+                      theme === 'dark' 
+                        ? 'border-slate-800 text-slate-400 hover:bg-slate-800' 
+                        : 'border-slate-200 text-slate-400 hover:bg-slate-50'
+                    }`}
+                  >
+                    Don't show it again
+                  </button>
+                </div>
+              </motion.div>
           </motion.div>
         )}
 
@@ -614,54 +616,54 @@ export default function App() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className={`relative w-full max-w-md border-2 rounded-3xl overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center ${
-                theme === 'dark' ? 'bg-[#0d1221] border-white' : 'bg-white border-black'
-              }`}
-            >
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border-2 relative ${
-                theme === 'dark' ? 'bg-blue-500/20 border-white text-blue-400' : 'bg-blue-100 border-black text-blue-600'
-              }`}>
-                <Info size={32} />
-                <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black border-2 ${
-                  theme === 'dark' ? 'bg-blue-600 border-white text-white' : 'bg-black border-black text-white'
-                }`}>BT</div>
-              </div>
-              
-              <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>
-                Better Accuracy Tips
-              </h3>
-              
-              <p className={`mb-8 leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                For better accuracy click photos/scan in well lighted area, and while recording it is preferred to record slowly for better accuracy.
-              </p>
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className={`relative w-full max-w-md border rounded-[2.5rem] overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center ${
+                  theme === 'dark' ? 'bg-[#0d1221] border-white/20' : 'bg-white border-slate-100'
+                }`}
+              >
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border relative ${
+                  theme === 'dark' ? 'bg-blue-500/20 border-white/30 text-blue-400' : 'bg-blue-50 border-blue-100 text-blue-600'
+                }`}>
+                  <Info size={32} />
+                  <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black border ${
+                    theme === 'dark' ? 'bg-blue-600 border-white/30 text-white' : 'bg-blue-600 border-blue-400 text-white'
+                  }`}>BT</div>
+                </div>
+                
+                <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                  Better Accuracy Tips
+                </h3>
+                
+                <p className={`mb-8 leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                  For better accuracy click photos/scan in well lighted area, and while recording it is preferred to record slowly for better accuracy.
+                </p>
 
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={() => handleAccuracyTipsClose(false)}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all ${
-                    theme === 'dark' 
-                      ? 'bg-blue-600 text-white hover:bg-blue-500' 
-                      : 'bg-black text-white hover:bg-slate-800'
-                  }`}
-                >
-                  I got it
-                </button>
-                <button
-                  onClick={() => handleAccuracyTipsClose(true)}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all border-2 ${
-                    theme === 'dark' 
-                      ? 'border-slate-800 text-slate-400 hover:bg-slate-800' 
-                      : 'border-slate-200 text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  Don't show it again
-                </button>
-              </div>
-            </motion.div>
+                <div className="flex flex-col gap-3 w-full">
+                  <button
+                    onClick={() => handleAccuracyTipsClose(false)}
+                    className={`w-full py-4 rounded-2xl font-bold transition-all ${
+                      theme === 'dark' 
+                        ? 'bg-blue-600 text-white hover:bg-blue-500' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200'
+                    }`}
+                  >
+                    I got it
+                  </button>
+                  <button
+                    onClick={() => handleAccuracyTipsClose(true)}
+                    className={`w-full py-4 rounded-2xl font-bold transition-all border ${
+                      theme === 'dark' 
+                        ? 'border-slate-800 text-slate-400 hover:bg-slate-800' 
+                        : 'border-slate-200 text-slate-400 hover:bg-slate-50'
+                    }`}
+                  >
+                    Don't show it again
+                  </button>
+                </div>
+              </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -679,31 +681,31 @@ export default function App() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className={`relative w-full max-w-lg border rounded-3xl overflow-hidden shadow-2xl ${
-                theme === 'dark' ? 'bg-[#0d1221] border-slate-800' : 'bg-white border-slate-200'
+              className={`relative w-full max-w-lg border rounded-[2.5rem] overflow-hidden shadow-2xl ${
+                theme === 'dark' ? 'bg-[#0d1221] border-slate-800' : 'bg-white/95 backdrop-blur-xl border-slate-100'
               }`}
             >
               <div className={`p-6 border-b flex items-center justify-between ${
-                theme === 'dark' ? 'border-slate-800 bg-slate-900/50' : 'border-slate-100 bg-slate-50/50'
+                theme === 'dark' ? 'border-slate-800 bg-slate-900/50' : 'border-slate-50 bg-slate-50/80'
               }`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    theme === 'dark' ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner ${
+                    theme === 'dark' ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-50 text-blue-600'
                   }`}>
-                    <BookIcon size={20} />
+                    <BookIcon size={24} />
                   </div>
                   <div>
-                    <h3 className={`font-bold leading-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{selectedBook.title}</h3>
-                    <p className={`text-xs uppercase tracking-widest ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{selectedBook.category}</p>
+                    <h3 className={`text-lg font-bold leading-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{selectedBook.title}</h3>
+                    <p className={`text-xs uppercase tracking-[0.2em] font-bold ${theme === 'dark' ? 'text-slate-400' : 'text-blue-600/60'}`}>{selectedBook.category}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedBook(null)}
-                  className={`p-2 rounded-full transition-colors ${
-                    theme === 'dark' ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
+                  className={`p-2.5 rounded-full transition-all ${
+                    theme === 'dark' ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-600'
                   }`}
                 >
-                  <X size={20} />
+                  <X size={22} />
                 </button>
               </div>
 
