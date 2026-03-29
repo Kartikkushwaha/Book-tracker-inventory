@@ -39,6 +39,51 @@ export default function App() {
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [showVideoWarning, setShowVideoWarning] = useState(false);
+  const [showAccuracyTips, setShowAccuracyTips] = useState(false);
+  const [dontShowVideoWarning, setDontShowVideoWarning] = useState(false);
+  const [dontShowAccuracyTips, setDontShowAccuracyTips] = useState(false);
+  const [activeTrigger, setActiveTrigger] = useState<'video' | 'photo' | null>(null);
+
+  const handleVideoClick = () => {
+    setActiveTrigger('video');
+    if (!dontShowVideoWarning) {
+      setShowVideoWarning(true);
+    } else if (!dontShowAccuracyTips) {
+      setShowAccuracyTips(true);
+    } else {
+      videoInputRef.current?.click();
+    }
+  };
+
+  const handlePhotoClick = () => {
+    setActiveTrigger('photo');
+    if (!dontShowAccuracyTips) {
+      setShowAccuracyTips(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleVideoWarningClose = (dontShowAgain: boolean) => {
+    if (dontShowAgain) setDontShowVideoWarning(true);
+    setShowVideoWarning(false);
+    if (!dontShowAccuracyTips) {
+      setShowAccuracyTips(true);
+    } else {
+      videoInputRef.current?.click();
+    }
+  };
+
+  const handleAccuracyTipsClose = (dontShowAgain: boolean) => {
+    if (dontShowAgain) setDontShowAccuracyTips(true);
+    setShowAccuracyTips(false);
+    if (activeTrigger === 'video') {
+      videoInputRef.current?.click();
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -194,20 +239,45 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-blue-500/30 ${
-      theme === 'dark' ? 'bg-[#0a0e1a] text-slate-200' : 'bg-[#f8fafc] text-slate-800'
+    <div className={`min-h-screen transition-colors duration-700 font-sans selection:bg-blue-500/30 relative overflow-hidden ${
+      theme === 'dark' ? 'bg-[#020617] text-slate-200' : 'bg-[#ffffff] text-slate-800'
     }`}>
-      {/* Background Glow */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute -top-[10%] -left-[10%] w-[40%] h-[40%] blur-[120px] rounded-full transition-all duration-1000 ${
-          theme === 'dark' ? 'bg-blue-600/10' : 'bg-blue-400/20'
-        }`} />
-        <div className={`absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] blur-[120px] rounded-full transition-all duration-1000 ${
-          theme === 'dark' ? 'bg-indigo-600/10' : 'bg-indigo-400/20'
-        }`} />
+      {/* Premium Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Animated Glow Blobs */}
+        <motion.div 
+          animate={{ 
+            x: [0, 50, 0], 
+            y: [0, 30, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className={`absolute -top-[10%] -left-[10%] w-[70%] h-[70%] blur-[160px] rounded-full transition-all duration-1000 ${
+            theme === 'dark' ? 'bg-blue-600/15' : 'bg-blue-400/10'
+          }`} 
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -40, 0], 
+            y: [0, -50, 0],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className={`absolute -bottom-[10%] -right-[10%] w-[70%] h-[70%] blur-[160px] rounded-full transition-all duration-1000 ${
+            theme === 'dark' ? 'bg-indigo-600/15' : 'bg-indigo-400/10'
+          }`} 
+        />
+        
+        {/* Pattern Overlay */}
+        <div className={`absolute inset-0 opacity-[0.05] ${theme === 'dark' ? 'invert' : ''}`} 
+             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        
+        {/* Noise Texture */}
+        <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
       </div>
 
-      <div className="relative max-w-2xl mx-auto px-4 py-8">
+      <div className="relative z-10 max-w-2xl mx-auto px-4 py-8">
         {/* Header / Logo */}
         <header className="flex items-center justify-between mb-12">
           <div className="flex items-center gap-3">
@@ -251,36 +321,42 @@ export default function App() {
         {/* Main Actions */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <button
-            onClick={() => videoInputRef.current?.click()}
+            onClick={handleVideoClick}
             disabled={isAnalyzing}
-            className={`flex flex-col items-center justify-center p-6 border rounded-2xl transition-all group disabled:opacity-50 ${
+            className={`flex flex-col items-center justify-center p-6 border-2 rounded-3xl transition-all duration-300 group disabled:opacity-50 relative overflow-hidden ${
               theme === 'dark'
-                ? 'bg-slate-900/50 border-slate-800 hover:border-blue-500/50 hover:bg-blue-500/5'
-                : 'bg-white border-slate-200 hover:border-blue-500/50 hover:bg-blue-50/50 shadow-sm'
+                ? 'bg-slate-900/40 border-white hover:bg-white/10'
+                : 'bg-white/80 backdrop-blur-sm border-black hover:bg-black/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
             }`}
           >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
-              theme === 'dark' ? 'bg-slate-800 group-hover:bg-blue-500/20 group-hover:text-blue-400' : 'bg-slate-100 group-hover:bg-blue-100 group-hover:text-blue-600'
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${
+              theme === 'dark' 
+                ? 'bg-slate-800 group-hover:bg-white group-hover:text-black group-hover:scale-110' 
+                : 'bg-slate-100 group-hover:bg-black group-hover:text-white group-hover:scale-110'
             }`}>
-              <Video size={24} />
+              <Video size={28} />
             </div>
-            <span className="font-medium">Upload scanning video</span>
+            <span className="font-bold tracking-tight text-sm uppercase">Scanning Video</span>
+            <div className={`absolute bottom-0 left-0 h-1 bg-current transition-all duration-500 w-0 group-hover:w-full ${theme === 'dark' ? 'text-white' : 'text-black'}`} />
           </button>
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handlePhotoClick}
             disabled={isAnalyzing}
-            className={`flex flex-col items-center justify-center p-6 border rounded-2xl transition-all group disabled:opacity-50 ${
+            className={`flex flex-col items-center justify-center p-6 border-2 rounded-3xl transition-all duration-300 group disabled:opacity-50 relative overflow-hidden ${
               theme === 'dark'
-                ? 'bg-slate-900/50 border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-500/5'
-                : 'bg-white border-slate-200 hover:border-indigo-500/50 hover:bg-indigo-50/50 shadow-sm'
+                ? 'bg-slate-900/40 border-white hover:bg-white/10'
+                : 'bg-white/80 backdrop-blur-sm border-black hover:bg-black/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
             }`}
           >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
-              theme === 'dark' ? 'bg-slate-800 group-hover:bg-indigo-500/20 group-hover:text-indigo-400' : 'bg-slate-100 group-hover:bg-indigo-100 group-hover:text-indigo-600'
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${
+              theme === 'dark' 
+                ? 'bg-slate-800 group-hover:bg-white group-hover:text-black group-hover:scale-110' 
+                : 'bg-slate-100 group-hover:bg-black group-hover:text-white group-hover:scale-110'
             }`}>
-              <Upload size={24} />
+              <Upload size={28} />
             </div>
-            <span className="font-medium">Upload Photos</span>
+            <span className="font-bold tracking-tight text-sm uppercase">Upload Photos</span>
+            <div className={`absolute bottom-0 left-0 h-1 bg-current transition-all duration-500 w-0 group-hover:w-full ${theme === 'dark' ? 'text-white' : 'text-black'}`} />
           </button>
           <input 
             type="file" 
@@ -309,10 +385,10 @@ export default function App() {
             placeholder="Search by book title or author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full pl-12 pr-4 py-4 rounded-2xl border transition-all focus:ring-2 focus:ring-blue-500/20 outline-none ${
+            className={`w-full pl-12 pr-4 py-4 rounded-3xl border-2 transition-all focus:ring-2 focus:ring-blue-500/20 outline-none ${
               theme === 'dark'
-                ? 'bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-600'
-                : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 shadow-sm'
+                ? 'bg-slate-900/50 border-white text-white placeholder:text-slate-600'
+                : 'bg-white border-black text-slate-900 placeholder:text-slate-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
             }`}
           />
         </div>
@@ -331,7 +407,7 @@ export default function App() {
                 <div className="absolute inset-0 blur-xl bg-blue-500/20 animate-pulse" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">AI is analyzing your content</h3>
+                <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>AI is analyzing your content</h3>
                 <p className="text-slate-400 text-sm max-w-xs mx-auto">
                   We're extracting book titles, authors, and categories. This may take a moment depending on the file size.
                 </p>
@@ -455,10 +531,10 @@ export default function App() {
 
           {filteredBooks.length === 0 && !isAnalyzing && capturedImages.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border ${
-                theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border-2 ${
+                theme === 'dark' ? 'bg-slate-900 border-white' : 'bg-white border-black shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
               }`}>
-                <Library size={32} className={theme === 'dark' ? 'text-slate-700' : 'text-slate-300'} />
+                <Library size={32} className={theme === 'dark' ? 'text-slate-400' : 'text-slate-500'} />
               </div>
               <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                 {searchTerm ? "No books match your search" : "Your library is empty"}
@@ -470,6 +546,125 @@ export default function App() {
           )}
         </div>
       </div>
+
+      {/* Warning Popups */}
+      <AnimatePresence>
+        {showVideoWarning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className={`relative w-full max-w-md border-2 rounded-3xl overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center ${
+                theme === 'dark' ? 'bg-[#0d1221] border-white' : 'bg-white border-black'
+              }`}
+            >
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border-2 relative ${
+                theme === 'dark' ? 'bg-blue-500/20 border-white text-blue-400' : 'bg-blue-100 border-black text-blue-600'
+              }`}>
+                <Library size={32} />
+                <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black border-2 ${
+                  theme === 'dark' ? 'bg-blue-600 border-white text-white' : 'bg-black border-black text-white'
+                }`}>BT</div>
+              </div>
+              
+              <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>
+                Video Accuracy Warning
+              </h3>
+              
+              <p className={`mb-8 leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                Scanning video mode might decrease the accuracy, it is preferred to use upload photos.
+              </p>
+
+              <div className="flex flex-col gap-3 w-full">
+                <button
+                  onClick={() => handleVideoWarningClose(false)}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all ${
+                    theme === 'dark' 
+                      ? 'bg-blue-600 text-white hover:bg-blue-500' 
+                      : 'bg-black text-white hover:bg-slate-800'
+                  }`}
+                >
+                  I got it
+                </button>
+                <button
+                  onClick={() => handleVideoWarningClose(true)}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all border-2 ${
+                    theme === 'dark' 
+                      ? 'border-slate-800 text-slate-400 hover:bg-slate-800' 
+                      : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                  }`}
+                >
+                  Don't show it again
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showAccuracyTips && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className={`relative w-full max-w-md border-2 rounded-3xl overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center ${
+                theme === 'dark' ? 'bg-[#0d1221] border-white' : 'bg-white border-black'
+              }`}
+            >
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border-2 relative ${
+                theme === 'dark' ? 'bg-blue-500/20 border-white text-blue-400' : 'bg-blue-100 border-black text-blue-600'
+              }`}>
+                <Info size={32} />
+                <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-lg text-[10px] font-black border-2 ${
+                  theme === 'dark' ? 'bg-blue-600 border-white text-white' : 'bg-black border-black text-white'
+                }`}>BT</div>
+              </div>
+              
+              <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>
+                Better Accuracy Tips
+              </h3>
+              
+              <p className={`mb-8 leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                For better accuracy click photos/scan in well lighted area, and while recording it is preferred to record slowly for better accuracy.
+              </p>
+
+              <div className="flex flex-col gap-3 w-full">
+                <button
+                  onClick={() => handleAccuracyTipsClose(false)}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all ${
+                    theme === 'dark' 
+                      ? 'bg-blue-600 text-white hover:bg-blue-500' 
+                      : 'bg-black text-white hover:bg-slate-800'
+                  }`}
+                >
+                  I got it
+                </button>
+                <button
+                  onClick={() => handleAccuracyTipsClose(true)}
+                  className={`w-full py-4 rounded-2xl font-bold transition-all border-2 ${
+                    theme === 'dark' 
+                      ? 'border-slate-800 text-slate-400 hover:bg-slate-800' 
+                      : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                  }`}
+                >
+                  Don't show it again
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Book Details Modal */}
       <AnimatePresence>
