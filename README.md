@@ -17,21 +17,33 @@ To solve this problem I created this app, let's see its features:
 
 <div align="center">
 
+# Working and running screenshots of app:
+1. Night mode:
+   
+ <img width="1883" height="923" alt="Screenshot 2026-03-30 222409" src="https://github.com/user-attachments/assets/9fcf740d-cc26-4e1e-98d1-c58df7dde853" />
 
-<br>
-<hr>
+2. Day mode:
+   
+ <img width="1884" height="920" alt="Screenshot 2026-03-30 222429" src="https://github.com/user-attachments/assets/c9a3b4e1-fbbf-4bc5-a234-18f8e36edd72" />
 
-Support Us
-<br>
-<hr>
+3. Working of app while uploading the photo
+   
+<img width="1898" height="911" alt="Screenshot 2026-03-30 222537" src="https://github.com/user-attachments/assets/aa30b555-2e1b-4a92-8eaf-930ec572c70a" />
+
+4. Exported pdf
+   
+<img width="1130" height="968" alt="Screenshot 2026-03-30 223925" src="https://github.com/user-attachments/assets/ac3846cc-4912-491d-9ac3-b5f459b3c9ea" />
+   
+# Support Us
+
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# 📚 Book Tracker App
 
-This contains everything you need to run your app locally.
+A modern and futuristic app to collect your bundle of books into a list by just a photo of bundle...
 
-View your app in AI Studio: https://ai.studio/apps/37a3b183-3b65-41d1-afb5-4c19cd80cbec
+View Book Tracker app in AI Studio: https://ai.studio/apps/37a3b183-3b65-41d1-afb5-4c19cd80cbec
 
 ## Run Locally
 
