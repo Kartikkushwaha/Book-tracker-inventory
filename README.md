@@ -11,7 +11,7 @@ To solve this problem I created this app, let's see its features:
 3. Multiple photos uploading feature for large scanning at same time.
 4. Video scanning upload mode for quick action.
 5. AI review optimization mechanism for better understanding and fast action.
-6. Direction to search on Google for Trust building
+6. Direction to search on Google for Trust building.
 7. Pdf export system to save the data for permanent and solid copy if needed.
 8. Free and open source app for everyone.
 
