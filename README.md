@@ -1,6 +1,6 @@
 
 
-<center>About Book Tracker</center>
+# About Book Tracker
 <br>
 <br>
 It is a futuristic tool that I created to help students/research scholars and others who have interest in reading books, but myself as a student I felt that filtering a single book from hundred or more book is very hectic and painful, you know even sometime it ruins mood of reading.
