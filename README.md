@@ -2,7 +2,7 @@
 
 # About Book Tracker
 
-It is a futuristic tool that I created to help students/research scholars and others who have interest in reading books, but myself as a student I felt that filtering a single book from hundred or more book is very hectic and painful, you know even sometime it ruins mood of reading.
+It is a futuristic tool that I created to help students/research scholars and others who have interest in reading books, but myself as a student I felt that filtering a single book from hundred or more book is very hectic and painful, you know even sometimes it ruins mood of reading.
 
 To solve this problem I created this app, let's see its features:
 1. Futuristic and clean graphics and visualization.
